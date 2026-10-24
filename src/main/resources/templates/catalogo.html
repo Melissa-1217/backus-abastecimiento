@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Catálogo de abastecimiento</title>
+
+    <link rel="stylesheet" th:href="@{/css/catalogo.css}">
+    <script th:src="@{/js/catalogo.js}" defer></script>
+
+  </head>
+  <body>
+    <main>
+      <h1>Catálogo de abastecimiento</h1>
+      <p>Zona: <strong th:text="${zona}">Arequipa</strong></p>
+
+      <p class="aviso">
+        Prototipo académico sobre Backus. Productos, precios y stock de
+        demostración; sin conexión al inventario real de la empresa.
+      </p>
+
+      <form th:action="@{/catalogo}" method="get">
+        <p>
+          <label for="busqueda">Buscar producto o presentación</label>
+        </p>
+
+        <input
+          type="search"
+          id="busqueda"
+          name="busqueda"
+          th:value="${busqueda}"
+          placeholder="Ejemplo: Cristal, lata o cerveza"
+        />
+
+        <label>
+          <input
+            type="checkbox"
+            name="soloDisponibles"
+            value="true"
+            th:checked="${soloDisponibles}"
+          />
+          Solo disponibles
+        </label>
+
+        <button type="submit">Buscar</button>
+        <a th:href="@{/catalogo}">Limpiar filtros</a>
+      </form>
+
+      <div class="tabla">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Producto</th>
+              <th scope="col">Presentación</th>
+              <th scope="col">Precio por caja o paquete</th>
+              <th scope="col">Stock en cajas o paquetes</th>
+              <th scope="col">Estado</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr th:each="item : ${inventarios}">
+              <td th:text="${item.presentacion.producto.nombre}"></td>
+              <td th:text="${item.presentacion.descripcion}"></td>
+              <td
+                th:text="|S/ ${#numbers.formatDecimal(
+                    item.presentacion.precio, 1, 2)}|"
+              ></td>
+              <td th:text="${item.cantidad}"></td>
+              <td>
+                <span class="estado agotado" th:if="${item.cantidad == 0}">
+                  Agotado
+                </span>
+
+                <span
+                  class="estado bajo"
+                  th:if="${item.cantidad > 0 and item.cantidad <= 5}"
+                >
+                  Stock bajo
+                </span>
+
+                <span class="estado disponible" th:if="${item.cantidad > 5}">
+                  Disponible
+                </span>
+              </td>
+            </tr>
+
+            <tr th:if="${#lists.isEmpty(inventarios)}">
+              <td colspan="5">
+                No se encontraron productos para esta zona con los filtros
+                seleccionados.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+    </body>
+</html>
