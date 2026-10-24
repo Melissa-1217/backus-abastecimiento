@@ -1,115 +1,99 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Catálogo de abastecimiento</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            background: #f5f6f8;
-            color: #202938;
-        }
 
-        main {
-            max-width: 1100px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
+    <link rel="stylesheet" th:href="@{/css/catalogo.css}">
+    <script th:src="@{/js/catalogo.js}" defer></script>
 
-        h1 { margin-bottom: 8px; }
+  </head>
+  <body>
+    <main>
+      <h1>Catálogo de abastecimiento</h1>
+      <p>Zona: <strong th:text="${zona}">Arequipa</strong></p>
 
-        .aviso { color: #526078; }
+      <p class="aviso">
+        Prototipo académico sobre Backus. Productos, precios y stock de
+        demostración; sin conexión al inventario real de la empresa.
+      </p>
 
-        .tabla {
-            overflow-x: auto;
-            margin-top: 24px;
-            background: white;
-            border-radius: 12px;
-        }
+      <form th:action="@{/catalogo}" method="get">
+        <p>
+          <label for="busqueda">Buscar producto o presentación</label>
+        </p>
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+        <input
+          type="search"
+          id="busqueda"
+          name="busqueda"
+          th:value="${busqueda}"
+          placeholder="Ejemplo: Cristal, lata o cerveza"
+        />
 
-        th, td {
-            padding: 16px;
-            text-align: left;
-            border-bottom: 1px solid #e5e7eb;
-        }
+        <label>
+          <input
+            type="checkbox"
+            name="soloDisponibles"
+            value="true"
+            th:checked="${soloDisponibles}"
+          />
+          Solo disponibles
+        </label>
 
-        th { background: #eaf0f7; }
+        <button type="submit">Buscar</button>
+        <a th:href="@{/catalogo}">Limpiar filtros</a>
+      </form>
 
-        .estado {
-            display: inline-block;
-            padding: 6px 10px;
-            border-radius: 20px;
-            white-space: nowrap;
-            font-weight: bold;
-        }
-
-        .disponible { background: #dcfce7; color: #166534; }
-        .bajo { background: #fef3c7; color: #854d0e; }
-        .agotado { background: #fee2e2; color: #991b1b; }
-    </style>
-</head>
-<body>
-<main>
-    <h1>Catálogo de abastecimiento</h1>
-    <p>Zona: <strong th:text="${zona}">Arequipa</strong></p>
-
-    <p class="aviso">
-        Prototipo académico sobre Backus. Productos, precios y stock
-        de demostración; sin conexión al inventario real de la empresa.
-    </p>
-
-    <div class="tabla">
+      <div class="tabla">
         <table>
-            <thead>
+          <thead>
             <tr>
-                <th scope="col">Producto</th>
-                <th scope="col">Presentación</th>
-                <th scope="col">Precio por caja o paquete</th>
-                <th scope="col">Stock en cajas o paquetes</th>
-                <th scope="col">Estado</th>
+              <th scope="col">Producto</th>
+              <th scope="col">Presentación</th>
+              <th scope="col">Precio por caja o paquete</th>
+              <th scope="col">Stock en cajas o paquetes</th>
+              <th scope="col">Estado</th>
             </tr>
-            </thead>
+          </thead>
 
-            <tbody>
+          <tbody>
             <tr th:each="item : ${inventarios}">
-                <td th:text="${item.presentacion.producto.nombre}"></td>
-                <td th:text="${item.presentacion.descripcion}"></td>
-                <td th:text="|S/ ${#numbers.formatDecimal(
-                    item.presentacion.precio, 1, 2)}|"></td>
-                <td th:text="${item.cantidad}"></td>
-                <td>
-                    <span class="estado agotado"
-                          th:if="${item.cantidad == 0}">
-                        Agotado
-                    </span>
+              <td th:text="${item.presentacion.producto.nombre}"></td>
+              <td th:text="${item.presentacion.descripcion}"></td>
+              <td
+                th:text="|S/ ${#numbers.formatDecimal(
+                    item.presentacion.precio, 1, 2)}|"
+              ></td>
+              <td th:text="${item.cantidad}"></td>
+              <td>
+                <span class="estado agotado" th:if="${item.cantidad == 0}">
+                  Agotado
+                </span>
 
-                    <span class="estado bajo"
-                          th:if="${item.cantidad > 0 and item.cantidad <= 5}">
-                        Stock bajo
-                    </span>
+                <span
+                  class="estado bajo"
+                  th:if="${item.cantidad > 0 and item.cantidad <= 5}"
+                >
+                  Stock bajo
+                </span>
 
-                    <span class="estado disponible"
-                          th:if="${item.cantidad > 5}">
-                        Disponible
-                    </span>
-                </td>
+                <span class="estado disponible" th:if="${item.cantidad > 5}">
+                  Disponible
+                </span>
+              </td>
             </tr>
 
             <tr th:if="${#lists.isEmpty(inventarios)}">
-                <td colspan="5">
-                    No hay productos registrados para esta zona.
-                </td>
+              <td colspan="5">
+                No se encontraron productos para esta zona con los filtros
+                seleccionados.
+              </td>
             </tr>
-            </tbody>
+          </tbody>
         </table>
-    </div>
-</main>
-</body>
+      </div>
+    </main>
+    </body>
 </html>

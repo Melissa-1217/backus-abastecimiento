@@ -18,9 +18,19 @@ public interface InventarioRepository
         WHERE LOWER(i.zona) = LOWER(:zona)
           AND pr.activo = true
           AND p.activo = true
+          AND (
+              :busqueda = ''
+              OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :busqueda, '%'))
+              OR LOWER(p.marca) LIKE LOWER(CONCAT('%', :busqueda, '%'))
+              OR LOWER(p.categoria) LIKE LOWER(CONCAT('%', :busqueda, '%'))
+              OR LOWER(pr.descripcion) LIKE LOWER(CONCAT('%', :busqueda, '%'))
+          )
+          AND (:soloDisponibles = false OR i.cantidad > 0)
         ORDER BY p.nombre, pr.descripcion
         """)
-    List<Inventario> buscarCatalogoPorZona(
-        @Param("zona") String zona
+    List<Inventario> buscarCatalogo(
+        @Param("zona") String zona,
+        @Param("busqueda") String busqueda,
+        @Param("soloDisponibles") boolean soloDisponibles
     );
 }
