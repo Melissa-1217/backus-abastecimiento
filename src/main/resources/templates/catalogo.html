@@ -5,9 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Catálogo de abastecimiento</title>
 
-    <link rel="stylesheet" th:href="@{/css/catalogo.css}">
+    <link rel="stylesheet" th:href="@{/css/catalogo.css}" />
     <script th:src="@{/js/catalogo.js}" defer></script>
-
   </head>
   <body>
     <main>
@@ -61,16 +60,26 @@
           <tbody>
             <tr th:each="item : ${inventarios}">
               <td th:text="${item.presentacion.producto.nombre}"></td>
+
               <td th:text="${item.presentacion.descripcion}"></td>
+
               <td
-                th:text="|S/ ${#numbers.formatDecimal(
-                    item.presentacion.precio, 1, 2)}|"
+                th:text="|S/ ${#numbers.formatDecimal(item.presentacion.precio, 1, 2)}|"
               ></td>
+
               <td th:text="${item.cantidad}"></td>
+
               <td>
                 <span class="estado agotado" th:if="${item.cantidad == 0}">
                   Agotado
                 </span>
+
+                <a
+                  th:if="${item.cantidad == 0}"
+                  th:href="@{/catalogo/{id}/alternativas(id=${item.id})}"
+                >
+                  Ver alternativas
+                </a>
 
                 <span
                   class="estado bajo"
@@ -95,5 +104,5 @@
         </table>
       </div>
     </main>
-    </body>
+  </body>
 </html>
