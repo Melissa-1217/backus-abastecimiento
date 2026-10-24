@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Alternativas disponibles</title>
+    <link rel="stylesheet" th:href="@{/css/catalogo.css}">
+</head>
+<body>
+<main>
+    <a th:href="@{/catalogo}">← Volver al catálogo</a>
+
+    <h1>Alternativas disponibles</h1>
+
+    <p>
+        Producto consultado:
+        <strong th:text="${seleccionado.presentacion.producto.nombre}">
+        </strong>
+    </p>
+
+    <p th:text="${seleccionado.presentacion.descripcion}"></p>
+
+    <p>
+        Zona: <strong th:text="${zona}"></strong>
+    </p>
+
+    <p class="aviso">
+        Otras presentaciones del mismo producto con stock en esta zona.
+        Revisa el contenido, las unidades y el precio:
+        las opciones no son equivalentes en volumen ni costo.
+        Datos de demostración.
+    </p>
+
+    <div class="tabla">
+        <table>
+            <thead>
+            <tr>
+                <th scope="col">Producto</th>
+                <th scope="col">Presentación</th>
+                <th scope="col">Precio por caja o paquete</th>
+                <th scope="col">Stock en cajas o paquetes</th>
+                <th scope="col">Estado</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="item : ${alternativas}">
+                <td th:text="${item.presentacion.producto.nombre}"></td>
+                <td th:text="${item.presentacion.descripcion}"></td>
+                <td th:text="|S/ ${#numbers.formatDecimal(item.presentacion.precio, 1, 2)}|"></td>
+                <td th:text="${item.cantidad}"></td>
+                <td>
+                    <span class="estado bajo"
+                          th:if="${item.cantidad <= 5}">
+                        Stock bajo
+                    </span>
+
+                    <span class="estado disponible"
+                          th:if="${item.cantidad > 5}">
+                        Disponible
+                    </span>
+                </td>
+            </tr>
+
+            <tr th:if="${#lists.isEmpty(alternativas)}">
+                <td colspan="5">
+                    No hay otras presentaciones disponibles de este
+                    producto en esta zona.
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>   

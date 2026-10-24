@@ -1,10 +1,14 @@
 package com.proyecto.backus.controller;
 
+import com.proyecto.backus.model.Inventario;
 import com.proyecto.backus.repository.InventarioRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
 
 @Controller
 public class CatalogoController {
@@ -35,13 +39,45 @@ public class CatalogoController {
         model.addAttribute("zona", zona);
         model.addAttribute("busqueda", textoBusqueda);
         model.addAttribute("soloDisponibles", soloDisponibles);
+
         model.addAttribute(
             "inventarios",
             inventarioRepository.buscarCatalogo(
-                zona, textoBusqueda, soloDisponibles
+                zona,
+                textoBusqueda,
+                soloDisponibles
             )
         );
 
         return "catalogo";
+    }
+
+    @GetMapping("/catalogo/{id}/alternativas")
+    public String mostrarAlternativas(
+            @PathVariable("id") Long id,
+            Model model) {
+
+        String zona = "Arequipa";
+
+        Inventario seleccionado = inventarioRepository
+            .buscarDetalle(id, zona)
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Producto no encontrado para esta zona"
+            ));
+
+        model.addAttribute("zona", zona);
+        model.addAttribute("seleccionado", seleccionado);
+
+        model.addAttribute(
+            "alternativas",
+            inventarioRepository.buscarAlternativas(
+                zona,
+                seleccionado.getPresentacion().getProducto().getId(),
+                seleccionado.getPresentacion().getId()
+            )
+        );
+
+        return "alternativas";
     }
 }
