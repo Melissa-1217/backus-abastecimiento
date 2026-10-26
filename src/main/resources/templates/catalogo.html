@@ -1,108 +1,136 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Catálogo de abastecimiento</title>
 
-    <link rel="stylesheet" th:href="@{/css/catalogo.css}" />
+    <link rel="stylesheet" th:href="@{/css/catalogo.css}">
     <script th:src="@{/js/catalogo.js}" defer></script>
-  </head>
-  <body>
-    <main>
-      <h1>Catálogo de abastecimiento</h1>
-      <p>Zona: <strong th:text="${zona}">Arequipa</strong></p>
+</head>
+<body>
+<main>
+    <h1>Catálogo de abastecimiento</h1>
 
-      <p class="aviso">
+    <p>Zona: <strong th:text="${zona}">Arequipa</strong></p>
+
+    <p class="aviso">
         Prototipo académico sobre Backus. Productos, precios y stock de
         demostración; sin conexión al inventario real de la empresa.
-      </p>
+    </p>
 
-      <form th:action="@{/catalogo}" method="get">
+    <!-- Mensajes después de intentar agregar un producto -->
+    <p th:if="${mensaje}" th:text="${mensaje}" role="status"></p>
+    <p th:if="${error}" th:text="${error}" role="alert"></p>
+
+    <!-- Búsqueda y filtro del catálogo -->
+    <form th:action="@{/catalogo}" method="get">
         <p>
-          <label for="busqueda">Buscar producto o presentación</label>
+            <label for="busqueda">Buscar producto o presentación</label>
         </p>
 
         <input
-          type="search"
-          id="busqueda"
-          name="busqueda"
-          th:value="${busqueda}"
-          placeholder="Ejemplo: Cristal, lata o cerveza"
-        />
+            type="search"
+            id="busqueda"
+            name="busqueda"
+            th:value="${busqueda}"
+            placeholder="Ejemplo: Cristal, lata o cerveza"
+        >
 
         <label>
-          <input
-            type="checkbox"
-            name="soloDisponibles"
-            value="true"
-            th:checked="${soloDisponibles}"
-          />
-          Solo disponibles
+            <input
+                type="checkbox"
+                name="soloDisponibles"
+                value="true"
+                th:checked="${soloDisponibles}"
+            >
+            Solo disponibles
         </label>
 
         <button type="submit">Buscar</button>
         <a th:href="@{/catalogo}">Limpiar filtros</a>
-      </form>
+    </form>
 
-      <div class="tabla">
+    <div class="tabla">
         <table>
-          <thead>
+            <thead>
             <tr>
-              <th scope="col">Producto</th>
-              <th scope="col">Presentación</th>
-              <th scope="col">Precio por caja o paquete</th>
-              <th scope="col">Stock en cajas o paquetes</th>
-              <th scope="col">Estado</th>
+                <th scope="col">Producto</th>
+                <th scope="col">Presentación</th>
+                <th scope="col">Precio por caja o paquete</th>
+                <th scope="col">Stock en cajas o paquetes</th>
+                <th scope="col">Estado y selección</th>
             </tr>
-          </thead>
+            </thead>
 
-          <tbody>
+            <tbody>
             <tr th:each="item : ${inventarios}">
-              <td th:text="${item.presentacion.producto.nombre}"></td>
+                <td th:text="${item.presentacion.producto.nombre}"></td>
 
-              <td th:text="${item.presentacion.descripcion}"></td>
+                <td th:text="${item.presentacion.descripcion}"></td>
 
-              <td
-                th:text="|S/ ${#numbers.formatDecimal(item.presentacion.precio, 1, 2)}|"
-              ></td>
+                <td th:text="|S/ ${#numbers.formatDecimal(item.presentacion.precio, 1, 2)}|"></td>
 
-              <td th:text="${item.cantidad}"></td>
+                <td th:text="${item.cantidad}"></td>
 
-              <td>
-                <span class="estado agotado" th:if="${item.cantidad == 0}">
-                  Agotado
-                </span>
+                <td>
+                    <span class="estado agotado"
+                          th:if="${item.cantidad == 0}">
+                        Agotado
+                    </span>
 
-                <a
-                  th:if="${item.cantidad == 0}"
-                  th:href="@{/catalogo/{id}/alternativas(id=${item.id})}"
-                >
-                  Ver alternativas
-                </a>
+                    <a th:if="${item.cantidad == 0}"
+                       th:href="@{/catalogo/{id}/alternativas(id=${item.id})}">
+                        Ver alternativas
+                    </a>
 
-                <span
-                  class="estado bajo"
-                  th:if="${item.cantidad > 0 and item.cantidad <= 5}"
-                >
-                  Stock bajo
-                </span>
+                    <span class="estado bajo"
+                          th:if="${item.cantidad > 0 and item.cantidad <= 5}">
+                        Stock bajo
+                    </span>
 
-                <span class="estado disponible" th:if="${item.cantidad > 5}">
-                  Disponible
-                </span>
-              </td>
+                    <span class="estado disponible"
+                          th:if="${item.cantidad > 5}">
+                        Disponible
+                    </span>
+
+                    <!-- Solo aparece cuando hay stock -->
+                    <form th:if="${item.cantidad > 0}"
+                          th:action="@{/carrito/agregar}"
+                          method="post">
+
+                        <input type="hidden"
+                               name="inventarioId"
+                               th:value="${item.id}">
+
+                        <label th:for="|cantidad-${item.id}|">
+                            Cajas o paquetes
+                        </label>
+
+                        <input type="number"
+                               th:id="|cantidad-${item.id}|"
+                               name="cantidad"
+                               value="1"
+                               min="1"
+                               th:max="${item.cantidad}"
+                               required>
+
+                        <button type="submit">
+                            Agregar al pedido
+                        </button>
+                    </form>
+                </td>
             </tr>
 
             <tr th:if="${#lists.isEmpty(inventarios)}">
-              <td colspan="5">
-                No se encontraron productos para esta zona con los filtros
-                seleccionados.
-              </td>
+                <td colspan="5">
+                    No se encontraron productos para esta zona
+                    con los filtros seleccionados.
+                </td>
             </tr>
-          </tbody>
+            </tbody>
         </table>
-      </div>
-    </main>
-  </body>
+    </div>
+</main>
+</body>
 </html>
