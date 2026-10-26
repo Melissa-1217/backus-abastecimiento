@@ -35,7 +35,7 @@ public class PedidoService {
     @Transactional
     public Pedido confirmar(
             Map<Long, Integer> items,
-            String zona) {
+            String zona, BigDecimal totalRevisado) {
 
         if (items == null || items.isEmpty()) {
             throw new IllegalArgumentException(
@@ -116,6 +116,9 @@ public class PedidoService {
             );
         }
 
+        if (totalRevisado == null || total.compareTo(totalRevisado) != 0) {
+            throw new IllegalArgumentException("Los precios cambiaron. Revisa nuevamente el total antes de confirmar.");
+        }
         pedido.setTotal(total);
         Pedido pedidoGuardado = pedidoRepository.save(pedido);
 

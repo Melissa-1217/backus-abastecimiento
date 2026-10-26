@@ -1,136 +1,50 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Catálogo de abastecimiento</title>
-
-    <link rel="stylesheet" th:href="@{/css/catalogo.css}">
-    <script th:src="@{/js/catalogo.js}" defer></script>
-</head>
-<body>
-<main>
-    <h1>Catálogo de abastecimiento</h1>
-
-    <p>Zona: <strong th:text="${zona}">Arequipa</strong></p>
-
-    <p class="aviso">
-        Prototipo académico sobre Backus. Productos, precios y stock de
-        demostración; sin conexión al inventario real de la empresa.
-    </p>
-
-    <!-- Mensajes después de intentar agregar un producto -->
-    <p th:if="${mensaje}" th:text="${mensaje}" role="status"></p>
-    <p th:if="${error}" th:text="${error}" role="alert"></p>
-
-    <!-- Búsqueda y filtro del catálogo -->
-    <form th:action="@{/catalogo}" method="get">
-        <p>
-            <label for="busqueda">Buscar producto o presentación</label>
-        </p>
-
-        <input
-            type="search"
-            id="busqueda"
-            name="busqueda"
-            th:value="${busqueda}"
-            placeholder="Ejemplo: Cristal, lata o cerveza"
-        >
-
-        <label>
-            <input
-                type="checkbox"
-                name="soloDisponibles"
-                value="true"
-                th:checked="${soloDisponibles}"
-            >
-            Solo disponibles
-        </label>
-
-        <button type="submit">Buscar</button>
-        <a th:href="@{/catalogo}">Limpiar filtros</a>
-    </form>
-
-    <div class="tabla">
-        <table>
-            <thead>
-            <tr>
-                <th scope="col">Producto</th>
-                <th scope="col">Presentación</th>
-                <th scope="col">Precio por caja o paquete</th>
-                <th scope="col">Stock en cajas o paquetes</th>
-                <th scope="col">Estado y selección</th>
-            </tr>
-            </thead>
-
-            <tbody>
-            <tr th:each="item : ${inventarios}">
-                <td th:text="${item.presentacion.producto.nombre}"></td>
-
-                <td th:text="${item.presentacion.descripcion}"></td>
-
-                <td th:text="|S/ ${#numbers.formatDecimal(item.presentacion.precio, 1, 2)}|"></td>
-
-                <td th:text="${item.cantidad}"></td>
-
-                <td>
-                    <span class="estado agotado"
-                          th:if="${item.cantidad == 0}">
-                        Agotado
-                    </span>
-
-                    <a th:if="${item.cantidad == 0}"
-                       th:href="@{/catalogo/{id}/alternativas(id=${item.id})}">
-                        Ver alternativas
-                    </a>
-
-                    <span class="estado bajo"
-                          th:if="${item.cantidad > 0 and item.cantidad <= 5}">
-                        Stock bajo
-                    </span>
-
-                    <span class="estado disponible"
-                          th:if="${item.cantidad > 5}">
-                        Disponible
-                    </span>
-
-                    <!-- Solo aparece cuando hay stock -->
-                    <form th:if="${item.cantidad > 0}"
-                          th:action="@{/carrito/agregar}"
-                          method="post">
-
-                        <input type="hidden"
-                               name="inventarioId"
-                               th:value="${item.id}">
-
-                        <label th:for="|cantidad-${item.id}|">
-                            Cajas o paquetes
-                        </label>
-
-                        <input type="number"
-                               th:id="|cantidad-${item.id}|"
-                               name="cantidad"
-                               value="1"
-                               min="1"
-                               th:max="${item.cantidad}"
-                               required>
-
-                        <button type="submit">
-                            Agregar al pedido
-                        </button>
-                    </form>
-                </td>
-            </tr>
-
-            <tr th:if="${#lists.isEmpty(inventarios)}">
-                <td colspan="5">
-                    No se encontraron productos para esta zona
-                    con los filtros seleccionados.
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-</main>
-</body>
-</html>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Catálogo | Backus Bodegas</title>
+<link rel="stylesheet" th:href="@{/css/catalogo.css}">
+<script th:src="@{/js/catalogo.js}" defer></script>
+<link rel="stylesheet" th:href="@{/css/navegacion.css}"><link rel="stylesheet" th:href="@{/css/acciones.css}"><script th:src="@{/js/guardados.js}" defer></script></head>
+<body class="catalogo-page">
+<header class="store-header">
+<div class="topbar"><div class="shell">Zona de atención: <strong th:text="${zona}">Arequipa</strong><span>Prototipo académico B2B</span></div></div>
+<div class="shell brand-row"><a class="brand" th:href="@{/}">BACKUS <small>B2B MAYORISTA</small></a><form class="header-search" th:action="@{/catalogo}" method="get"><label class="sr-only" for="busqueda">Buscar productos</label><input id="busqueda" name="busqueda" type="search" th:value="${busqueda}" placeholder="¿Qué necesitas para tu bodega?"><button class="primary-button" type="submit">Buscar</button></form><div th:replace="~{fragments/acciones :: acciones}"></div></div>
+<div class="shell"><nav th:replace="~{fragments/navegacion :: menu('catalogo')}"></nav></div>
+</header>
+<main class="shell catalog-main">
+<p class="breadcrumb">Abastecimiento / Catálogo</p>
+<div class="title-row"><div><h1>Catálogo de Abastecimiento Mayorista</h1><p>Encuentra la presentación que necesitas para tu bodega.</p></div><span class="demo-badge">Datos de demostración</span></div>
+<p class="notice">Proyecto académico sobre Backus. Precios y disponibilidad de prueba, sin conexión al inventario real de la empresa.</p>
+<p class="feedback success" th:if="${mensaje}" th:text="${mensaje}" role="status"></p>
+<p class="feedback error" th:if="${error}" th:text="${error}" role="alert"></p>
+<div class="category-pills" aria-label="Categorías"><button type="button" class="category-pill selected" data-category="">Todas</button><button type="button" class="category-pill" data-category="nacionales">Nacionales</button><button type="button" class="category-pill" data-category="globales">Globales</button><button type="button" class="category-pill" data-category="ready-to-drink">Ready to Drink</button><button type="button" class="category-pill" data-category="no-alcoholicas">No alcohólicas</button></div>
+<section class="filter-panel" aria-label="Filtros del catálogo">
+<div class="filter-selects">
+<label>CATEGORÍA<select id="filtro-categoria"><option value="">Todas las categorías</option><option value="nacionales">Nacionales</option><option value="globales">Globales</option><option value="ready-to-drink">Ready to Drink</option><option value="no-alcoholicas">No alcohólicas</option></select></label>
+<label>MARCA<select id="filtro-marca"><option value="">Todas las marcas</option><option th:each="marca : ${inventarios.![presentacion.producto.marca]}" th:value="${marca}" th:text="${marca}"></option></select></label>
+<label>PRESENTACIÓN<select id="filtro-presentacion"><option value="">Todas las presentaciones</option><option th:each="item : ${inventarios}" th:value="${item.presentacion.descripcion}" th:text="${item.presentacion.descripcion}"></option></select></label>
+<label>DISPONIBILIDAD<select id="filtro-estado"><option value="">Todos los estados</option><option value="disponible">Disponible</option><option value="bajo">Stock bajo</option><option value="agotado">Agotado</option></select></label>
+</div>
+<div class="filter-bottom"><label><input type="checkbox" id="solo-disponibles" th:checked="${soloDisponibles}"> Solo disponibles</label><a class="reset-filters" th:href="@{/catalogo}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10a9 9 0 1 1 2.6 8.4"/><path d="M3 4v6h6"/></svg><span>Limpiar filtros</span></a><span id="contador-resultados" aria-live="polite"></span><label>Ordenar: <select id="orden"><option value="nombre">Nombre A-Z</option><option value="precio">Menor precio</option></select></label></div>
+</section>
+<div class="results-heading"><h2>Productos y presentaciones</h2><span th:text="|${#lists.size(inventarios)} resultados|">Resultados</span></div>
+<section class="product-grid" aria-label="Productos del catálogo">
+<article class="product-card" th:each="item : ${inventarios}" th:attr="data-categoria=${item.presentacion.producto.categoria == 'Cerveza' ? 'nacionales' : item.presentacion.producto.categoria},data-marca=${item.presentacion.producto.marca},data-presentacion=${item.presentacion.descripcion},data-cantidad=${item.cantidad},data-precio=${item.presentacion.precio},data-nombre=${item.presentacion.producto.nombre}">
+<div class="card-top"><span class="estado agotado" th:if="${item.cantidad == 0}">Agotado</span><span class="estado bajo" th:if="${item.cantidad > 0 and item.cantidad <= 5}">Stock bajo</span><span class="estado disponible" th:if="${item.cantidad > 5}">Disponible</span></div>
+<div class="product-image">
+<img th:if="${item.presentacion.producto.nombre == 'Cristal' and item.presentacion.contenidoMl == 650}" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSn7RojSlv2Dk-b-zQA3Equw14HDd_619qaKKMFdd8GmvVKCUZ6xrmu-nLI_mnLNtW_G2pWT4KtS8piLxMuHxx2Xqbtqkf168ZdQJwaBK4_bsdtDJxwV_nlW0fESGNj7zNzrcAGnsjSIyCNdBhYgZyshDo7p3CSqc_eQ4eNESey-MQG-AtytrVHrmAFLzn3sxAwXqdNh98ztjYUoSB1FoZhWY2bWmrHUVN00wGiTmlWIWfF0JcVnM5Qw" alt="Imagen ilustrativa de Cristal botella" loading="lazy">
+<img th:if="${item.presentacion.producto.nombre == 'Cristal' and item.presentacion.contenidoMl != 650}" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1pxIYzyjz6hbjWNQ2xFCAir8SYKL9eVUEPzZzetBIxNHDHRWUXLcgM0bVKAQNpvWIJQrAh7CaWRFW_J-qNwj0rcp699ibZCIIDwt46EfOudidqGz3SuDFLBksBDGODz2r_BK9teakn9DAKlVVl40BVB4A9eLMI80w8v8NuYVlBrgyngrMcSeQUCU5iJVNJsb_xPNSBTjw_K-O5uUrQK2hmv6ajfpQfz5ouRjGKOO5lbkc7DyVMnixGg" alt="Imagen ilustrativa de Cristal en lata" loading="lazy">
+<img th:if="${item.presentacion.producto.nombre == 'Pilsen Callao'}" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgjBD2AFiV5-FkWiqGMQXGeohd03WgX-NO6aWEuV0Puai6r_Ax4484sKU1S0CnFE1EcXzJOtnqwrW75o_5nYHUR3HZ74DEipdEkqfSiwyobTdMwCkuGohmaUivLpD7sSkrE2ch5WdlFXaD-GPgUEQ_YcZnEbBz0q5QiRmPKlOcsTIN0IhSLjAMY6AJxFqfSVf4f8AN8h6O6y1ar0-WnUyFu_BE1EoB4KhxrjqufSws2hdUY1EufDcn7Q" alt="Imagen ilustrativa de Pilsen Callao" loading="lazy">
+<span th:if="${item.presentacion.producto.nombre != 'Cristal' and item.presentacion.producto.nombre != 'Pilsen Callao'}">Imagen no disponible</span>
+</div>
+<div class="card-content"><p class="category-label" th:text="${item.presentacion.producto.categoria}"></p><h3 th:text="${item.presentacion.producto.nombre}"></h3><p class="presentation" th:text="${item.presentacion.descripcion}"></p>
+<div class="price-box"><strong th:text="|S/ ${#numbers.formatDecimal(item.presentacion.precio, 1, 2)}|"></strong><span>Precio por caja o paquete</span><small th:text="|Stock: ${item.cantidad} cajas o paquetes|"></small></div>
+<div class="sold-out-actions" th:if="${item.cantidad == 0}"><a class="primary-button detail-button" th:if="${item.cantidad == 0}" th:href="@{/catalogo/{id}(id=${item.id})}">Ver producto</a><a class="secondary-button" th:if="${item.cantidad == 0}" th:href="@{/catalogo/{id}/alternativas(id=${item.id})}">Ver alternativas disponibles</a></div>
+<form class="add-form" th:if="${item.cantidad > 0}" th:action="@{/carrito/agregar}" method="post"><input type="hidden" name="inventarioId" th:value="${item.id}"><label th:for="|cantidad-${item.id}|">Cajas o paquetes</label><input type="number" th:id="|cantidad-${item.id}|" name="cantidad" min="1" th:max="${item.cantidad}" value="1" required><a class="primary-button detail-button" th:href="@{/catalogo/{id}(id=${item.id})}">Ver producto</a><button class="primary-button" type="submit">Agregar al pedido</button></form>
+</div></article>
+</section>
+<p id="sin-resultados-filtros" class="empty-results" hidden>No hay productos que coincidan con los filtros seleccionados.</p>
+<p class="empty-results" th:if="${#lists.isEmpty(inventarios)}">No se encontraron productos para esta zona con los filtros seleccionados.</p>
+<footer class="catalog-footer"><strong>BACKUS BODEGAS</strong><span>Prototipo académico · Imágenes ilustrativas · Zona de prueba: Arequipa</span></footer>
+</main></body></html>

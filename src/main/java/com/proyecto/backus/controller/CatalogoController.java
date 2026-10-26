@@ -21,8 +21,10 @@ public class CatalogoController {
     }
 
     @GetMapping("/")
-    public String inicio() {
-        return "redirect:/catalogo";
+    public String inicio(Model model) {
+        model.addAttribute("destacados", inventarioRepository
+            .buscarCatalogo("Arequipa", "", true).stream().limit(4).toList());
+        return "inicio";
     }
 
     @GetMapping("/catalogo")
@@ -50,6 +52,30 @@ public class CatalogoController {
         );
 
         return "catalogo";
+    }
+
+    @GetMapping("/catalogo/{id}")
+    public String detalle(@PathVariable("id") Long id, Model model) {
+        Inventario item = inventarioRepository.buscarDetalle(id, "Arequipa")
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        model.addAttribute("item", item);
+        model.addAttribute("zona", item.getZona());
+        model.addAttribute("precioPorUnidad", item.getPresentacion().getPrecio().divide(
+            java.math.BigDecimal.valueOf(item.getPresentacion().getUnidadesPorPaquete()),
+            2, java.math.RoundingMode.HALF_UP));
+        java.math.BigDecimal costoUnitario = item.getPresentacion().getPrecio().divide(
+            java.math.BigDecimal.valueOf(item.getPresentacion().getUnidadesPorPaquete()),
+            8, java.math.RoundingMode.HALF_UP);
+        // Regla referencial del prototipo, no politica comercial de Backus.
+        model.addAttribute("pvpReferencial", costoUnitario.divide(
+            new java.math.BigDecimal("0.75"), 2, java.math.RoundingMode.CEILING));
+        model.addAttribute("costoUnitarioCalculo", costoUnitario);
+        model.addAttribute("otrasPresentaciones", inventarioRepository
+            .buscarCatalogo(item.getZona(), "", false).stream()
+            .filter(opcion -> opcion.getPresentacion().getProducto().getId()
+                .equals(item.getPresentacion().getProducto().getId()))
+            .toList());
+        return "producto";
     }
 
     @GetMapping("/catalogo/{id}/alternativas")
