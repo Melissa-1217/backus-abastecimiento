@@ -5,10 +5,10 @@
 <title>Catálogo | Backus Bodegas</title>
 <link rel="stylesheet" th:href="@{/css/catalogo.css}">
 <script th:src="@{/js/catalogo.js}" defer></script>
-<link rel="stylesheet" th:href="@{/css/navegacion.css}"><link rel="stylesheet" th:href="@{/css/acciones.css}"><script th:src="@{/js/guardados.js}" defer></script></head>
+<link rel="stylesheet" th:href="@{/css/navegacion.css}"><link rel="stylesheet" th:href="@{/css/acciones.css}"><script th:src="@{/js/guardados.js}" defer></script><script th:src="@{/js/agregar-carrito.js}" defer></script><link rel="stylesheet" th:href="@{/css/franja-superior.css}"></head>
 <body class="catalogo-page">
 <header class="store-header">
-<div class="topbar"><div class="shell">Zona de atención: <strong th:text="${zona}">Arequipa</strong><span>Prototipo académico B2B</span></div></div>
+<div th:replace="~{fragments/franja-superior :: franja}"></div>
 <div class="shell brand-row"><a class="brand" th:href="@{/}">BACKUS <small>B2B MAYORISTA</small></a><form class="header-search" th:action="@{/catalogo}" method="get"><label class="sr-only" for="busqueda">Buscar productos</label><input id="busqueda" name="busqueda" type="search" th:value="${busqueda}" placeholder="¿Qué necesitas para tu bodega?"><button class="primary-button" type="submit">Buscar</button></form><div th:replace="~{fragments/acciones :: acciones}"></div></div>
 <div class="shell"><nav th:replace="~{fragments/navegacion :: menu('catalogo')}"></nav></div>
 </header>

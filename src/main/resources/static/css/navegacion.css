@@ -1,1 +1,4 @@
 .site-nav{display:flex;align-items:center;gap:26px;overflow-x:auto;margin:0;padding:0;font-family:Arial,sans-serif;font-size:14px;line-height:20px;scrollbar-width:thin}.site-nav a{display:block;flex-shrink:0;padding:15px 0 13px;margin:0;border:0;border-bottom:3px solid transparent;color:#333;text-decoration:none;font-weight:500;white-space:nowrap;box-shadow:none}.site-nav a.is-active{font-weight:700;color:#181818;border-bottom-color:#ffd100}.site-nav a:hover{color:#000}.site-nav a:focus-visible{outline:2px solid #725c00;outline-offset:-2px}@media(max-width:600px){.site-nav{gap:20px;font-size:13px}}
+
+/* Separador compartido encima del menú de la tienda. */
+.site-nav{border-top:1px solid #e2e2e2}

@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Alternativas disponibles</title>
     <link rel="stylesheet" th:href="@{/css/catalogo.css}">
-</head>
-<body>
+<link rel="stylesheet" th:href="@{/css/franja-superior.css}"><link rel="stylesheet" th:href="@{/css/navegacion.css}"><link rel="stylesheet" th:href="@{/css/acciones.css}"><script th:src="@{/js/guardados.js}" defer></script></head>
+<body><header class="store-header"><div th:replace="~{fragments/franja-superior :: franja}"></div><div class="shell brand-row"><a class="brand" th:href="@{/}">BACKUS <small>B2B MAYORISTA</small></a><form class="header-search" th:action="@{/catalogo}" method="get"><label class="sr-only" for="buscar-perfil">Buscar productos</label><input id="buscar-perfil" name="busqueda" type="search" placeholder="¿Qué necesitas para tu bodega?"><button class="primary-button" type="submit">Buscar</button></form><div th:replace="~{fragments/acciones :: acciones}"></div></div><div class="shell"><nav th:replace="~{fragments/navegacion :: menu('catalogo')}"></nav></div></header>
 <main>
     <a th:href="@{/catalogo}">← Volver al catálogo</a>
 

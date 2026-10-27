@@ -45,13 +45,28 @@ public class CarritoController {
         this.inventarioRepository = inventarioRepository;
     }
 
-    @PostMapping("/carrito/agregar")
+    @PostMapping(value = "/carrito/agregar", produces = "text/html")
     public String agregar(
             @RequestParam("inventarioId") Long inventarioId,
             @RequestParam("cantidad") int cantidad,
             RedirectAttributes mensajes) {
 
         try {
+            agregarValidado(inventarioId, cantidad);
+
+            mensajes.addFlashAttribute(
+                "mensaje",
+                "Producto agregado al pedido."
+            );
+
+        } catch (IllegalArgumentException ex) {
+            mensajes.addFlashAttribute("error", ex.getMessage());
+        }
+
+        return "redirect:/catalogo";
+    }
+
+    private void agregarValidado(Long inventarioId, int cantidad) {
             if (cantidad <= 0) {
                 throw new IllegalArgumentException(
                     "La cantidad debe ser mayor que cero."
@@ -77,16 +92,21 @@ public class CarritoController {
 
             carritoService.agregar(inventarioId, cantidad);
 
-            mensajes.addFlashAttribute(
-                "mensaje",
-                "Producto agregado al pedido."
-            );
+    }
 
+    @PostMapping(value = "/carrito/agregar", produces = "application/json")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public org.springframework.http.ResponseEntity<Map<String, Object>> agregarSinRecarga(
+            @RequestParam("inventarioId") Long inventarioId,
+            @RequestParam("cantidad") int cantidad) {
+        try {
+            agregarValidado(inventarioId, cantidad);
+            long total = carritoService.obtenerItems().values().stream().mapToLong(Integer::longValue).sum();
+            return org.springframework.http.ResponseEntity.ok(Map.of(
+                "mensaje", "Producto agregado al pedido", "cantidadCarrito", total));
         } catch (IllegalArgumentException ex) {
-            mensajes.addFlashAttribute("error", ex.getMessage());
+            return org.springframework.http.ResponseEntity.badRequest().body(Map.of("mensaje", ex.getMessage()));
         }
-
-        return "redirect:/catalogo";
     }
 
     private boolean prepararVista(Model model) {
@@ -161,7 +181,7 @@ public class CarritoController {
         session.setAttribute("revisionTotal", model.getAttribute("total"));
         model.addAttribute("token", token);
         model.addAttribute("revision", true);
-        return "carrito";
+        return "revisar-pedido";
     }
 
     @PostMapping("/carrito/confirmar")
@@ -191,8 +211,15 @@ public class CarritoController {
     public String confirmado(HttpSession session, Model model) {
         Long id = (Long) session.getAttribute("ultimoPedidoId");
         if (id == null) return "redirect:/carrito";
-        model.addAttribute("pedido", pedidoRepository.findById(id).orElseThrow());
-        model.addAttribute("detalles", detallePedidoRepository.buscarDetallesDelPedido(id));
+        Pedido pedido = pedidoRepository.findById(id).orElseThrow();
+        var detalles = detallePedidoRepository.buscarDetallesDelPedido(id);
+        model.addAttribute("pedido", pedido);
+        model.addAttribute("detalles", detalles);
+        model.addAttribute("numeroPedido", String.format("DEMO-%04d", pedido.getId()));
+        model.addAttribute("fechaPedido", pedido.getFecha().atZoneSameInstant(
+            java.time.ZoneId.of("America/Lima")).format(
+                java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+        model.addAttribute("bultosPedido", detalles.stream().mapToLong(d -> d.getCantidad()).sum());
         model.addAttribute("zona", "Arequipa");
         return "pedido-confirmado";
     }
