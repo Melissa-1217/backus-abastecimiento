@@ -1,0 +1,1 @@
+document.addEventListener("DOMContentLoaded",()=>{const button=document.getElementById("exportar-pdf"),original=document.title;button?.addEventListener("click",()=>{const id=document.querySelector(".receipt-main")?.dataset.numero||"pedido";document.title="Backus-"+id;window.print();});window.addEventListener("afterprint",()=>{document.title=original;});});

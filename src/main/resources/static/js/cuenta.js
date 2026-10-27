@@ -1,0 +1,1 @@
+document.addEventListener("DOMContentLoaded",()=>{document.querySelector("[data-open-saved]")?.addEventListener("click",()=>document.querySelector(".saved-header")?.click());});
