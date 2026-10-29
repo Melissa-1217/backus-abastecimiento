@@ -5,72 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Alternativas disponibles</title>
     <link rel="stylesheet" th:href="@{/css/catalogo.css}">
-<link rel="stylesheet" th:href="@{/css/franja-superior.css}"><link rel="stylesheet" th:href="@{/css/navegacion.css}"><link rel="stylesheet" th:href="@{/css/acciones.css}"><script th:src="@{/js/guardados.js}" defer></script><link rel="stylesheet" th:href="@{/css/imagenes-tienda.css}"></head>
-<body><header class="store-header"><div th:replace="~{fragments/franja-superior :: franja}"></div><div class="shell brand-row"><a class="brand" th:href="@{/}">BACKUS <small>B2B MAYORISTA</small></a><form class="header-search" th:action="@{/catalogo}" method="get"><label class="sr-only" for="buscar-perfil">Buscar productos</label><input id="buscar-perfil" name="busqueda" type="search" placeholder="¿Qué necesitas para tu bodega?"><button class="primary-button" type="submit">Buscar</button></form><div th:replace="~{fragments/acciones :: acciones}"></div></div><div class="shell"><nav th:replace="~{fragments/navegacion :: menu('catalogo')}"></nav></div></header>
-<main>
-    <a th:href="@{/catalogo}">← Volver al catálogo</a>
-
-    <h1>Alternativas disponibles</h1>
-
-    <p>
-        Producto consultado:
-        <strong th:text="${seleccionado.presentacion.producto.nombre}">
-        </strong>
-    </p>
-
-    <p th:text="${seleccionado.presentacion.descripcion}"></p>
-
-    <p>
-        Zona: <strong th:text="${zona}"></strong>
-    </p>
-
-    <p class="aviso">
-        Otras presentaciones del mismo producto con stock en esta zona.
-        Revisa el contenido, las unidades y el precio:
-        las opciones no son equivalentes en volumen ni costo.
-        Datos de demostración.
-    </p>
-
-    <div class="tabla">
-        <table>
-            <thead>
-            <tr>
-                <th scope="col">Producto</th>
-                <th scope="col">Presentación</th>
-                <th scope="col">Precio por caja o paquete</th>
-                <th scope="col">Stock en cajas o paquetes</th>
-                <th scope="col">Estado</th>
-            </tr>
-            </thead>
-
-            <tbody>
-            <tr th:each="item : ${alternativas}">
-                <td th:text="${item.presentacion.producto.nombre}"></td>
-                <td th:text="${item.presentacion.descripcion}"></td>
-                <td th:text="|S/ ${#numbers.formatDecimal(item.presentacion.precio, 1, 2)}|"></td>
-                <td th:text="${item.cantidad}"></td>
-                <td>
-                    <span class="estado bajo"
-                          th:if="${item.cantidad <= 5}">
-                        Stock bajo
-                    </span>
-
-                    <span class="estado disponible"
-                          th:if="${item.cantidad > 5}">
-                        Disponible
-                    </span>
-                </td>
-            </tr>
-
-            <tr th:if="${#lists.isEmpty(alternativas)}">
-                <td colspan="5">
-                    No hay otras presentaciones disponibles de este
-                    producto en esta zona.
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-</main>
-</body>
-</html>   
+<link rel="stylesheet" th:href="@{/css/franja-superior.css}"><link rel="stylesheet" th:href="@{/css/navegacion.css}"><link rel="stylesheet" th:href="@{/css/acciones.css}"><script th:src="@{/js/guardados.js}" defer></script><link rel="stylesheet" th:href="@{/css/imagenes-tienda.css}"><link rel="stylesheet" th:href="@{/css/alternativas.css}"></head>
+<body class="catalogo-page"><header class="store-header"><div th:replace="~{fragments/franja-superior :: franja}"></div><div class="shell brand-row"><a class="brand" th:href="@{/}">BACKUS <small>B2B MAYORISTA</small></a><form class="header-search" th:action="@{/catalogo}" method="get"><label class="sr-only" for="buscar-perfil">Buscar productos</label><input id="buscar-perfil" name="busqueda" type="search" placeholder="¿Qué necesitas para tu bodega?"><button class="primary-button" type="submit">Buscar</button></form><div th:replace="~{fragments/acciones :: acciones}"></div></div><div class="shell"><nav th:replace="~{fragments/navegacion :: menu('catalogo')}"></nav></div></header>
+<main class="shell alternatives-main">
+<nav class="alternatives-breadcrumb" aria-label="Ruta de navegación"><a th:href="@{/catalogo}">Catálogo</a><span aria-hidden="true">/</span><span>Alternativas disponibles</span></nav>
+<h1 th:text="${seleccionado.cantidad == 0 ? 'Esta presentación está agotada' : 'Encuentra otra presentación'}"></h1>
+<section class="original-product" aria-label="Presentación consultada">
+<div class="original-image"><div th:replace="~{fragments/imagen-producto :: imagen(${seleccionado})}"></div></div>
+<div class="original-description"><h2 th:text="${seleccionado.presentacion.producto.nombre}"></h2><p th:text="${seleccionado.presentacion.descripcion}"></p><span class="alternative-status" th:classappend="${seleccionado.cantidad == 0 ? 'is-empty' : 'is-available'}" th:text="${seleccionado.cantidad == 0 ? 'Agotado' : 'Presentación consultada'}"></span></div>
+<div class="original-price"><strong th:text="|S/ ${#numbers.formatDecimal(seleccionado.presentacion.precio,1,2)}|"></strong><small>Por caja o paquete · IGV incluido</small><small th:text="|Zona: ${zona}|"></small></div>
+</section>
+<div class="alternatives-heading"><h2>Elige otra presentación</h2><p>Mismo producto, otras opciones con stock en tu zona.</p></div>
+<div class="alternatives-grid">
+<article class="alternative-card" th:each="item : ${alternativas}">
+<span class="alternative-status" th:classappend="${item.cantidad <= 5 ? 'is-low' : 'is-available'}" th:text="${item.cantidad <= 5 ? 'Stock bajo' : 'Disponible'}"></span>
+<div class="alternative-image"><div th:replace="~{fragments/imagen-producto :: imagen(${item})}"></div></div>
+<h3 th:text="${item.presentacion.producto.nombre}"></h3><p class="alternative-format" th:text="${item.presentacion.descripcion}"></p>
+<strong class="alternative-price" th:text="|S/ ${#numbers.formatDecimal(item.presentacion.precio,1,2)}|"></strong><small>Por caja o paquete · IGV incluido</small><p class="alternative-stock" th:text="|${item.cantidad} cajas o paquetes disponibles|"></p>
+<a class="primary-button" th:href="@{/catalogo/{id}(id=${item.id})}">Ver producto</a>
+<details class="alternative-comparison"><summary>Comparar presentación</summary><dl><dt>Contenido por unidad</dt><dd><span th:text="${seleccionado.presentacion.contenidoMl}"></span> ml → <strong th:text="|${item.presentacion.contenidoMl} ml|"></strong></dd><dt>Unidades por empaque</dt><dd><span th:text="${seleccionado.presentacion.unidadesPorPaquete}"></span> → <strong th:text="${item.presentacion.unidadesPorPaquete}"></strong></dd><dt>Contenido total</dt><dd><span th:text="${seleccionado.presentacion.contenidoMl * seleccionado.presentacion.unidadesPorPaquete}"></span> ml → <strong th:text="|${item.presentacion.contenidoMl * item.presentacion.unidadesPorPaquete} ml|"></strong></dd></dl><p>Los empaques pueden variar en contenido y precio. Revisa la opción antes de agregarla.</p></details>
+</article></div>
+<section class="alternatives-empty" th:if="${#lists.isEmpty(alternativas)}"><h2>No hay otras presentaciones con stock</h2><p>Puedes explorar otros productos en el catálogo.</p><a class="primary-button" th:href="@{/catalogo}">Explorar catálogo</a></section>
+<p class="alternatives-note" th:unless="${#lists.isEmpty(alternativas)}">Cada opción puede tener distinto contenido y cantidad de unidades por empaque.</p>
+<a class="alternatives-back" th:href="@{/catalogo}">← Volver al catálogo</a>
+</main><footer class="alternatives-footer"><div class="shell"><strong>BACKUS BODEGAS</strong><span>Proyecto académico · Datos de demostración</span></div></footer></body></html>
