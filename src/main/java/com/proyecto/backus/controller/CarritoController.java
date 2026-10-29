@@ -139,7 +139,9 @@ public class CarritoController {
     }
 
     @GetMapping("/carrito")
-    public String verCarrito(Model model) {
+    public String verCarrito(Model model, java.security.Principal principal) {
+        model.addAttribute("datosPendientes", pedidoService.datosPendientes(principal == null ? null : principal.getName()));
+        model.addAttribute("requiereSesion", principal == null);
         prepararVista(model);
         model.addAttribute("revision", false);
         return "carrito";
@@ -170,7 +172,12 @@ public class CarritoController {
     }
 
     @GetMapping("/carrito/revisar")
-    public String revisar(Model model, HttpSession session, RedirectAttributes mensajes) {
+    public String revisar(Model model, HttpSession session, RedirectAttributes mensajes, java.security.Principal principal) {
+        var pendientes = pedidoService.datosPendientes(principal == null ? null : principal.getName());
+        if (!pendientes.isEmpty()) {
+            mensajes.addFlashAttribute("error", "Completa tus datos antes de revisar el pedido. Tu carrito se conserva.");
+            return "redirect:/carrito";
+        }
         if (!prepararVista(model)) {
             mensajes.addFlashAttribute("error", "Revisa el carrito: hay productos sin stock suficiente o está vacío.");
             return "redirect:/carrito";
@@ -185,7 +192,7 @@ public class CarritoController {
     }
 
     @PostMapping("/carrito/confirmar")
-    public String confirmar(@RequestParam("token") String token, HttpSession session,
+    public String confirmar(@RequestParam("token") String token, HttpSession session, java.security.Principal principal,
             RedirectAttributes mensajes) {
         synchronized (session) {
             if (!token.equals(session.getAttribute("revisionToken")) ||
@@ -196,7 +203,7 @@ public class CarritoController {
             session.removeAttribute("revisionToken");
             try {
                 Pedido pedido = pedidoService.confirmar(carritoService.obtenerItems(), "Arequipa",
-                    (BigDecimal) session.getAttribute("revisionTotal"));
+                    (BigDecimal) session.getAttribute("revisionTotal"),principal==null?null:principal.getName());
                 carritoService.vaciar();
                 session.setAttribute("ultimoPedidoId", pedido.getId());
                 return "redirect:/pedido-confirmado";

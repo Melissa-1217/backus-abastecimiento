@@ -23,7 +23,7 @@ public class CuentaController {
   String correo=form.getCorreo().trim().toLowerCase(Locale.ROOT);
   if(usuarios.existsByCorreo(correo))errors.rejectValue("correo","duplicado","Ya existe una cuenta con este correo.");
   if(errors.hasErrors()){form.setPassword("");form.setConfirmacion("");return "registro";}
-  Usuario u=new Usuario();u.setNombre(form.getNombre().trim());u.setBodega(form.getBodega().trim());u.setCorreo(correo);u.setPasswordHash(encoder.encode(form.getPassword()));
+  Usuario u=new Usuario();u.setRol("BODEGUERO");u.setNombre(form.getNombre().trim());u.setBodega(form.getBodega().trim());u.setCorreo(correo);u.setPasswordHash(encoder.encode(form.getPassword()));
   try{usuarios.saveAndFlush(u);}catch(DataIntegrityViolationException ex){errors.rejectValue("correo","duplicado","No se pudo registrar este correo.");form.setPassword("");form.setConfirmacion("");return "registro";}
   return "redirect:/login?registro";
  }

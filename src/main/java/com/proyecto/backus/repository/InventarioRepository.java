@@ -78,4 +78,10 @@ public interface InventarioRepository
         Optional<Inventario> buscarParaConfirmar(
                         @Param("id") Long id,
                         @Param("zona") String zona);
+
+ @Query("select i from Inventario i join fetch i.presentacion pr join fetch pr.producto p order by p.nombre, pr.descripcion, i.zona")
+ List<Inventario> listarAdministracion();
+ @Lock(LockModeType.PESSIMISTIC_WRITE)
+ @Query("select i from Inventario i where i.id = :id")
+ Optional<Inventario> bloquearParaAjuste(@Param("id")Long id);
 }

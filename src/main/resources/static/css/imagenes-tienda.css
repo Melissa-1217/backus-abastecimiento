@@ -1,0 +1,15 @@
+/* Imágenes del comprador contenidas en sus cuadros, sin recortes ni deformación. */
+.product-image{position:relative;overflow:hidden;min-width:0;display:flex;align-items:center;justify-content:center}
+.product-image>img{display:block;width:100%;height:100%;max-width:100%;max-height:100%;min-width:0;min-height:0;object-fit:contain;object-position:center;flex-shrink:1}
+.detail-main .detail-layout{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.detail-main .gallery-column,.detail-main .image-panel,.detail-main .reference-gallery,.detail-main .managed-gallery{min-width:0;max-width:100%}
+.detail-main .image-panel{overflow:hidden}
+.detail-main .managed-gallery>img,.detail-main .reference-gallery>img{display:block;box-sizing:border-box;width:100%;height:350px;max-width:100%;max-height:350px;min-width:0;object-fit:contain;object-position:center;margin:0;background:#fafafa}
+.detail-main .gallery-thumbnails{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:9px;max-width:100%;margin:18px 0 0;padding:0}
+.detail-main .gallery-thumbnails .thumbnail{box-sizing:border-box;display:flex;align-items:center;justify-content:center;position:relative;flex:0 0 62px;width:62px;height:62px;min-width:62px;min-height:62px;max-width:62px;max-height:62px;padding:5px;margin:0;border:1px solid #e5e5e5;border-radius:5px;background:#fff;overflow:hidden;cursor:pointer}
+.detail-main .gallery-thumbnails .thumbnail.selected{border-color:#d6b200;background:#fffdf0}
+.detail-main .gallery-thumbnails .thumbnail>img{display:block;width:100%;height:100%;max-width:100%;max-height:100%;min-width:0;min-height:0;object-fit:contain;object-position:center}
+.detail-main .other-card .product-image{height:130px;overflow:hidden}
+.detail-main .other-card .product-image>img{width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain}
+.cart-image,.cart-product,.cart-image .product-image{min-width:0;overflow:hidden}
+@media(max-width:700px){.detail-main .detail-layout{grid-template-columns:minmax(0,1fr)}.detail-main .managed-gallery>img,.detail-main .reference-gallery>img{height:270px;max-height:270px}.detail-main .gallery-thumbnails .thumbnail{flex-basis:54px;width:54px;height:54px;min-width:54px;min-height:54px;max-width:54px;max-height:54px}}

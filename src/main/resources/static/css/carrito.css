@@ -8,3 +8,5 @@
 
 /* Ruta de navegacion discreta. */
 .cart-main .breadcrumb{font-size:12px;color:#777;margin:0 0 14px}.cart-main .breadcrumb a,.cart-main .breadcrumb a:visited{color:#555;text-decoration:none}.cart-main .breadcrumb a:hover{color:#181818}.cart-main .breadcrumb a:focus-visible{outline:2px solid #725c00;outline-offset:3px}
+
+.checkout-profile{padding:20px 24px;background:#fffbea;border:1px solid #ebd881;border-radius:10px;margin:18px 0}.checkout-profile h2{font-size:18px;margin:0 0 8px}.checkout-profile p{margin:8px 0}.checkout-profile ul{padding-left:20px;line-height:1.7}.checkout-profile .primary-button{display:inline-flex;padding:10px 18px}.checkout-profile-note{font-size:12px;color:#606060}
