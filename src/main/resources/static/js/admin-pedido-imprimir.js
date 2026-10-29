@@ -1,0 +1,1 @@
+document.addEventListener("DOMContentLoaded",()=>document.querySelector("[data-print-order]")?.addEventListener("click",()=>window.print()));

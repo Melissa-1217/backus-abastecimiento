@@ -14,9 +14,11 @@ import org.springframework.web.server.ResponseStatusException;
 public class CatalogoController {
 
     private final InventarioRepository inventarioRepository;
+    private final com.proyecto.backus.service.GaleriaService galeria;
 
     public CatalogoController(
-            InventarioRepository inventarioRepository) {
+            InventarioRepository inventarioRepository, com.proyecto.backus.service.GaleriaService galeria) {
+        this.galeria=galeria;
         this.inventarioRepository = inventarioRepository;
     }
 
@@ -59,6 +61,7 @@ public class CatalogoController {
         Inventario item = inventarioRepository.buscarDetalle(id, "Arequipa")
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         model.addAttribute("item", item);
+        model.addAttribute("fotosProducto",galeria.publicas(item.getPresentacion().getId(),item.getPresentacion().getProducto().getId(),item.getPresentacion().getImagenUrl(),item.getPresentacion().getProducto().getImagenUrl()));
         model.addAttribute("zona", item.getZona());
         model.addAttribute("precioPorUnidad", item.getPresentacion().getPrecio().divide(
             java.math.BigDecimal.valueOf(item.getPresentacion().getUnidadesPorPaquete()),

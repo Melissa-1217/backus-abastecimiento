@@ -22,6 +22,10 @@ public class Producto {
     @Column(nullable = false)
     private boolean activo = true;
 
+    @Column(name="imagen_url",length=1000) private String imagenUrl;
+    public String getImagenUrl(){return imagenUrl;}
+    public void setImagenUrl(String v){imagenUrl=v;}
+
     public Producto() {
     }
 

@@ -21,6 +21,8 @@ public class Usuario {
  public String getDepartamento(){return departamento;} public void setDepartamento(String v){departamento=v;}
  @Column(length=200) private String referencia;
  public String getReferencia(){return referencia;} public void setReferencia(String v){referencia=v;}
+ @Column(nullable=false,length=20) private String rol="BODEGUERO";
+ public String getRol(){return rol;} public void setRol(String v){rol=v;}
  public Usuario() {}
  public Long getId(){return id;}
  public String getNombre(){return nombre;} public void setNombre(String v){nombre=v;}

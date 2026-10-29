@@ -19,23 +19,46 @@ import java.util.TreeMap;
 public class PedidoService {
 
     private final InventarioRepository inventarioRepository;
+    private final com.proyecto.backus.repository.UsuarioRepository usuarios;
     private final PedidoRepository pedidoRepository;
     private final DetallePedidoRepository detallePedidoRepository;
 
     public PedidoService(
             InventarioRepository inventarioRepository,
             PedidoRepository pedidoRepository,
-            DetallePedidoRepository detallePedidoRepository) {
+            DetallePedidoRepository detallePedidoRepository, com.proyecto.backus.repository.UsuarioRepository usuarios) {
+        this.usuarios=usuarios;
 
         this.inventarioRepository = inventarioRepository;
         this.pedidoRepository = pedidoRepository;
         this.detallePedidoRepository = detallePedidoRepository;
     }
 
+    @Transactional(readOnly = true)
+    public List<String> datosPendientes(String correo) {
+        if (correo == null) return List.of("Iniciar sesión con una cuenta de bodeguero");
+        var u = usuarios.findByCorreo(correo).filter(v -> "BODEGUERO".equals(v.getRol())).orElse(null);
+        if (u == null) return List.of("Iniciar sesión con una cuenta de bodeguero");
+        return camposPendientes(u);
+    }
+
+    public static List<String> camposPendientes(com.proyecto.backus.model.Usuario u) {
+        List<String> faltantes = new ArrayList<>();
+        String telefono = u.getTelefono() == null ? "" : u.getTelefono();
+        if (!telefono.matches("[0-9+() -]+") || telefono.replaceAll("[^0-9]", "").length() < 9
+                || telefono.replaceAll("[^0-9]", "").length() > 15) faltantes.add("Teléfono de contacto válido (9 a 15 dígitos)");
+        if (u.getRuc() == null || !u.getRuc().matches("[0-9]{11}")) faltantes.add("RUC de 11 dígitos");
+        if (u.getDireccion() == null || u.getDireccion().isBlank()) faltantes.add("Dirección de la bodega");
+        if (u.getDistrito() == null || u.getDistrito().isBlank()) faltantes.add("Distrito");
+        if (u.getProvincia() == null || u.getProvincia().isBlank()) faltantes.add("Provincia");
+        if (u.getDepartamento() == null || u.getDepartamento().isBlank()) faltantes.add("Departamento");
+        return faltantes;
+    }
+
     @Transactional
     public Pedido confirmar(
             Map<Long, Integer> items,
-            String zona, BigDecimal totalRevisado) {
+            String zona, BigDecimal totalRevisado, String correoUsuario) {
 
         if (items == null || items.isEmpty()) {
             throw new IllegalArgumentException(
@@ -59,8 +82,16 @@ public class PedidoService {
             }
         }
 
+        List<String> pendientes = datosPendientes(correoUsuario);
+        if (!pendientes.isEmpty()) throw new IllegalArgumentException(
+            "Antes de confirmar, completa: " + String.join(", ", pendientes) + ". Tu carrito se conserva.");
+
         Pedido pedido = new Pedido();
         pedido.setZona(zona);
+        if(correoUsuario!=null)usuarios.findByCorreo(correoUsuario).filter(u->"BODEGUERO".equals(u.getRol())).ifPresent(u->{
+            pedido.setUsuarioId(u.getId());pedido.setBodegaNombre(u.getBodega());pedido.setResponsable(u.getNombre());pedido.setCorreoContacto(u.getCorreo());pedido.setTelefonoContacto(u.getTelefono());
+            pedido.setDireccionEntrega(java.util.stream.Stream.of(u.getDireccion(),u.getDistrito(),u.getProvincia(),u.getDepartamento()).filter(v->v!=null&&!v.isBlank()).collect(java.util.stream.Collectors.joining(", ")));
+        });
 
         BigDecimal total = BigDecimal.ZERO;
         List<DetallePedido> detalles = new ArrayList<>();
